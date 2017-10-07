@@ -18,9 +18,11 @@ impl EvoPheno {
         let mut fitness: i32 = 0;
         let target_chars = TARGET.as_bytes();
 
-        let _ = (0..TARGET_LEN).map(|i| if target_chars[i] == t[i] {
-            fitness += 1;
-        }).collect(); //TODO: We don't want the result, throw it away
+        for i in 0..TARGET_LEN {
+            if target_chars[i] == t[i] {
+                fitness += 1;
+            }
+        }
 
         EvoPheno {
             text: t,
@@ -98,7 +100,9 @@ fn run_algorithm(population_size: i32, crossover: bool) -> i32 {
 }
 
 fn main() {
-    for population_size in (50..500).step_by(50) {
+    run_algorithm(500, true);
+
+/*    for population_size in (50..500).step_by(50) {
         for crossover in vec![true, false] {
             print!("{},{}", crossover, population_size);
             let mut results = Vec::new();
@@ -111,5 +115,5 @@ fn main() {
 
             println!(",{},{},{}", results[0], results[2], results[4]);
         }
-    }
+    }*/
 }
