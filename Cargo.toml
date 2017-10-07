@@ -1,0 +1,10 @@
+[package]
+name = "weasel"
+version = "0.1.0"
+authors = ["Daniel Lockyer <thisisdaniellockyer@gmail.com>"]
+
+[dependencies]
+rand = "0.3.16"
+
+[profile.release]
+debug = true
