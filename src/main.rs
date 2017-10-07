@@ -8,13 +8,13 @@ const TARGET: &str = "methinks it is like a weasel";
 const TARGET_LEN: usize = 28;
 
 #[derive(Clone, Debug)]
-struct EvoPheno<'a> {
-    text: &'a [u8],
+struct EvoPheno {
+    text: Vec<u8>,
     fitness: i32
 }
 
-impl<'a> EvoPheno<'a> {
-    fn new(t: Vec<u8>) -> EvoPheno<'a> {
+impl EvoPheno {
+    fn new(t: Vec<u8>) -> EvoPheno {
         let mut fitness: i32 = 0;
         let target_chars = TARGET.as_bytes();
 
@@ -25,12 +25,12 @@ impl<'a> EvoPheno<'a> {
         }
 
         EvoPheno {
-            text: t.to_bytes(),
+            text: t,
             fitness: fitness
         }
     }
 
-    fn new_random() -> EvoPheno<'a> {
+    fn new_random() -> EvoPheno {
         EvoPheno::new((0..TARGET_LEN).map(|_| thread_rng().gen_range(32, 127)).collect())
     }
 
@@ -87,15 +87,14 @@ fn run_algorithm(population_size: i32, crossover: bool) -> i32 {
 
         let c_index = thread_rng().gen_range(0, population_size) as usize;
         let d_index = thread_rng().gen_range(0, population_size) as usize;
-        let mut new_population = population;
 
-        if new_population[c_index].fitness > new_population[d_index].fitness {
-            std::mem::replace(&mut new_population[d_index], child);
+        let new_index = if population[c_index].fitness > population[d_index].fitness {
+            d_index
         } else {
-            std::mem::replace(&mut new_population[c_index], child);
-        }
+            c_index
+        };
 
-        population = new_population;
+        std::mem::replace(&mut population[new_index], child);
     }
 }
 
