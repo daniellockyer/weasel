@@ -8,13 +8,13 @@ const TARGET: &str = "methinks it is like a weasel";
 const TARGET_LEN: usize = 28;
 
 #[derive(Clone, Debug)]
-struct EvoPheno {
-    text: Vec<u8>,
+struct EvoPheno<'a> {
+    text: &'a [u8],
     fitness: i32
 }
 
-impl EvoPheno {
-    fn new(t: Vec<u8>) -> EvoPheno {
+impl<'a> EvoPheno<'a> {
+    fn new(t: Vec<u8>) -> EvoPheno<'a> {
         let mut fitness: i32 = 0;
         let target_chars = TARGET.as_bytes();
 
@@ -25,12 +25,12 @@ impl EvoPheno {
         }
 
         EvoPheno {
-            text: t,
+            text: t.to_bytes(),
             fitness: fitness
         }
     }
 
-    fn new_random() -> EvoPheno {
+    fn new_random() -> EvoPheno<'a> {
         EvoPheno::new((0..TARGET_LEN).map(|_| thread_rng().gen_range(32, 127)).collect())
     }
 
