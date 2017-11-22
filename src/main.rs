@@ -2,12 +2,13 @@
 #![feature(alloc_system)] extern crate alloc_system;
 extern crate rand;
 
-use rand::{thread_rng, Rng};
+use rand::{thread_rng, random, Rng};
 
 const TARGET: &str = "methinks it is like a weasel";
 const TARGET_LEN: usize = 28;
+const MUT_PROB: f64 = 1f64 / TARGET_LEN as f64;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 struct EvoPheno {
     text: Vec<u8>,
     fitness: i32
@@ -30,12 +31,8 @@ impl EvoPheno {
         }
     }
 
-    fn new_random() -> EvoPheno {
-        EvoPheno::new((0..TARGET_LEN).map(|_| thread_rng().gen_range(32, 127)).collect())
-    }
-
     fn crossover(&self, other: &EvoPheno) -> EvoPheno {
-        EvoPheno::new((0..TARGET_LEN).map(|i| if rand::random::<f64>() < 0.5 {
+        EvoPheno::new((0..TARGET_LEN).map(|i| if random::<f64>() < 0.5 {
             self.text[i]
         } else {
             other.text[i]
@@ -43,7 +40,7 @@ impl EvoPheno {
     }
 
     fn mutate(&self) -> EvoPheno {
-        EvoPheno::new((0..TARGET_LEN).map(|i| if rand::random::<f64>() < (1f64 / TARGET_LEN as f64) {
+        EvoPheno::new((0..TARGET_LEN).map(|i| if random::<f64>() < MUT_PROB {
             thread_rng().gen_range(32, 127)
         } else {
             self.text[i]
@@ -51,7 +48,7 @@ impl EvoPheno {
     }
 }
 
-fn tournament(population: &Vec<EvoPheno>) -> (usize, usize) {
+fn tournament(population: &[EvoPheno]) -> (usize, usize) {
     let a_index = thread_rng().gen_range(0, population.len()) as usize;
     let b_index = thread_rng().gen_range(0, population.len()) as usize;
 
@@ -63,7 +60,9 @@ fn tournament(population: &Vec<EvoPheno>) -> (usize, usize) {
 }
 
 fn run_algorithm(population_size: i32, crossover: bool) -> i32 {
-    let mut population: Vec<EvoPheno> = (0..population_size).map(|_| EvoPheno::new_random()).collect();
+    let mut population: Vec<EvoPheno> = (0..population_size).map(|_|
+        EvoPheno::new((0..TARGET_LEN).map(|_| thread_rng().gen_range(32, 127)).collect())
+    });
     let mut iterations = 0;
 
     loop {
@@ -89,16 +88,15 @@ fn run_algorithm(population_size: i32, crossover: bool) -> i32 {
 
 fn main() {
     for population_size in (50..500).step_by(50) {
-        for crossover in vec![true, false] {
-            print!("{},{}", crossover, population_size);
+        for crossover in &[true, false] {
             let mut results = Vec::new();
 
             for _ in 0..5 {
-                results.push(run_algorithm(population_size, crossover));
+                results.push(run_algorithm(population_size, *crossover));
             }
 
             results.sort();
-            println!(",{},{},{}", results[0], results[2], results[4]);
+            println!("{},{},{},{},{}", crossover, population_size, results[0], results[2], results[4]);
         }
     }
 }
