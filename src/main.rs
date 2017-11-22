@@ -51,30 +51,27 @@ impl EvoPheno {
     }
 }
 
+fn tournament(population: &Vec<EvoPheno>) -> (usize, usize) {
+    let a_index = thread_rng().gen_range(0, population.len()) as usize;
+    let b_index = thread_rng().gen_range(0, population.len()) as usize;
+
+    if population[a_index].fitness < population[b_index].fitness {
+        (a_index, b_index)
+    } else {
+        (b_index, a_index)
+    }
+}
+
 fn run_algorithm(population_size: i32, crossover: bool) -> i32 {
     let mut population: Vec<EvoPheno> = (0..population_size).map(|_| EvoPheno::new_random()).collect();
     let mut iterations = 0;
 
     loop {
-        let a_index = thread_rng().gen_range(0, population_size) as usize;
-        let b_index = thread_rng().gen_range(0, population_size) as usize;
-        let parent1_index = if population[a_index].fitness > population[b_index].fitness {
-            a_index
-        } else {
-            b_index
-        };
+        let (_, parent1_index) = tournament(&population);
 
         let child = if crossover {
-            let c_index = thread_rng().gen_range(0, population_size) as usize;
-            let d_index = thread_rng().gen_range(0, population_size) as usize;
-            let parent2_index = if population[c_index].fitness > population[d_index].fitness {
-                c_index
-            } else {
-                d_index
-            };
-
-            let cross_child = population[parent1_index].crossover(&population[parent2_index]);
-            cross_child.mutate()
+            let (_, parent2_index) = tournament(&population);
+            population[parent1_index].crossover(&population[parent2_index]).mutate()
         } else {
             population[parent1_index].mutate()
         };
@@ -85,23 +82,13 @@ fn run_algorithm(population_size: i32, crossover: bool) -> i32 {
             return iterations;
         }
 
-        let c_index = thread_rng().gen_range(0, population_size) as usize;
-        let d_index = thread_rng().gen_range(0, population_size) as usize;
-
-        let new_index = if population[c_index].fitness > population[d_index].fitness {
-            d_index
-        } else {
-            c_index
-        };
-
+        let (new_index, _) = tournament(&population);
         std::mem::replace(&mut population[new_index], child);
     }
 }
 
 fn main() {
-    run_algorithm(500, true);
-
-/*    for population_size in (50..500).step_by(50) {
+    for population_size in (50..500).step_by(50) {
         for crossover in vec![true, false] {
             print!("{},{}", crossover, population_size);
             let mut results = Vec::new();
@@ -111,8 +98,7 @@ fn main() {
             }
 
             results.sort();
-
             println!(",{},{},{}", results[0], results[2], results[4]);
         }
-    }*/
+    }
 }
