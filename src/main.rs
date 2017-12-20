@@ -60,16 +60,18 @@ fn tournament(population: &[EvoPheno]) -> (usize, usize) {
 }
 
 fn run_algorithm(population_size: i32, crossover: bool) -> i32 {
-    let mut population: Vec<EvoPheno> = (0..population_size).map(|_|
-        EvoPheno::new((0..TARGET_LEN).map(|_| thread_rng().gen_range(32, 127)).collect())
-    });
     let mut iterations = 0;
+    let mut population: Vec<EvoPheno> = (0..population_size).map(|_|
+        EvoPheno::new(
+            (0..TARGET_LEN).map(|_| thread_rng().gen_range(32, 127)).collect()
+        )
+    ).collect();
 
     loop {
-        let (_, parent1_index) = tournament(&population);
+        let parent1_index = tournament(&population).1;
 
         let child = if crossover {
-            let (_, parent2_index) = tournament(&population);
+            let parent2_index = tournament(&population).1;
             population[parent1_index].crossover(&population[parent2_index]).mutate()
         } else {
             population[parent1_index].mutate()
@@ -81,7 +83,7 @@ fn run_algorithm(population_size: i32, crossover: bool) -> i32 {
             return iterations;
         }
 
-        let (new_index, _) = tournament(&population);
+        let new_index = tournament(&population).0;
         std::mem::replace(&mut population[new_index], child);
     }
 }
@@ -89,12 +91,7 @@ fn run_algorithm(population_size: i32, crossover: bool) -> i32 {
 fn main() {
     for population_size in (50..500).step_by(50) {
         for crossover in &[true, false] {
-            let mut results = Vec::new();
-
-            for _ in 0..5 {
-                results.push(run_algorithm(population_size, *crossover));
-            }
-
+            let mut results: Vec<i32> = (0..5).map(|_| run_algorithm(population_size, *crossover)).collect();
             results.sort();
             println!("{},{},{},{},{}", crossover, population_size, results[0], results[2], results[4]);
         }
