@@ -1,4 +1,3 @@
-#![feature(iterator_step_by)]
 #![feature(alloc_system)] extern crate alloc_system;
 extern crate rand;
 
