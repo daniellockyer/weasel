@@ -1,4 +1,3 @@
-#![feature(alloc_system)] extern crate alloc_system;
 extern crate rand;
 
 use rand::{thread_rng, random, Rng};
