@@ -13,19 +13,19 @@ struct EvoPheno {
 }
 
 impl EvoPheno {
-    fn new(t: Vec<u8>) -> EvoPheno {
+    fn new(text: Vec<u8>) -> EvoPheno {
         let mut fitness: i32 = 0;
         let target_chars = TARGET.as_bytes();
 
         for i in 0..TARGET_LEN {
-            if target_chars[i] == t[i] {
+            if target_chars[i] == text[i] {
                 fitness += 1;
             }
         }
 
         EvoPheno {
-            text: t,
-            fitness: fitness
+            text,
+            fitness
         }
     }
 
